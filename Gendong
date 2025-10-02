@@ -1,0 +1,70 @@
+-- Carry Tool Script (WeldConstraint Version)
+local Tool = Instance.new("Tool")
+Tool.Name = "CarryTool"
+Tool.RequiresHandle = false
+Tool.CanBeDropped = false
+Tool.Parent = game.Players.LocalPlayer.Backpack
+
+local carrying = false
+local carriedPlayer = nil
+local weld = nil
+
+-- Cari player terdekat
+local function getClosestPlayer(character, range)
+	local closest = nil
+	local shortest = range or 10
+	for _, plr in pairs(game.Players:GetPlayers()) do
+		if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") and plr ~= game.Players.LocalPlayer then
+			local mag = (plr.Character.HumanoidRootPart.Position - character.HumanoidRootPart.Position).magnitude
+			if mag < shortest then
+				shortest = mag
+				closest = plr
+			end
+		end
+	end
+	return closest
+end
+
+Tool.Activated:Connect(function()
+	local char = Tool.Parent
+	local humRoot = char:FindFirstChild("HumanoidRootPart")
+	if not humRoot then return end
+
+	if carrying then
+		-- Lepaskan player
+		if weld then
+			weld:Destroy()
+			weld = nil
+		end
+		carriedPlayer = nil
+		carrying = false
+	else
+		-- Cari target untuk digendong
+		local target = getClosestPlayer(char, 10)
+		if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
+			carriedPlayer = target
+			local targetRoot = target.Character.HumanoidRootPart
+
+			-- Posisi target di belakang kita
+			targetRoot.CFrame = humRoot.CFrame * CFrame.new(0, 0, 2)
+
+			-- WeldConstraint agar ikut bergerak
+			weld = Instance.new("WeldConstraint")
+			weld.Part0 = humRoot
+			weld.Part1 = targetRoot
+			weld.Parent = humRoot
+
+			carrying = true
+		end
+	end
+end)
+
+Tool.Unequipped:Connect(function()
+	-- Kalau unequip, lepas juga
+	if weld then
+		weld:Destroy()
+		weld = nil
+	end
+	carrying = false
+	carriedPlayer = nil
+end)
