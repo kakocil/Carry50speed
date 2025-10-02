@@ -38,7 +38,7 @@ local Services = {
 }
 
 local Properties = {
-	SpeedBoost = 25,
+	SpeedBoost = 15,
 	SpeedForSmoke = 20
 }
 
