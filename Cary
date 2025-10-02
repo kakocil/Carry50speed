@@ -38,8 +38,8 @@ local Services = {
 }
 
 local Properties = {
-	SpeedBoost = 50,
-	SpeedForSmoke = 40
+	SpeedBoost = 25,
+	SpeedForSmoke = 20
 }
 
 local Tool = script.Parent
