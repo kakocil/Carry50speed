@@ -1,4 +1,4 @@
--- Carry Tool (Piggyback Version)
+-- Carry Tool (Fixed - Bisa Jalan, Target Hanya Emote)
 local Tool = Instance.new("Tool")
 Tool.Name = "CarryTool"
 Tool.RequiresHandle = false
@@ -9,7 +9,7 @@ local carrying = false
 local carriedPlayer = nil
 local weld = nil
 
--- Function cari player terdekat
+-- Cari player terdekat
 local function getClosestPlayer(character, range)
 	local closest = nil
 	local shortest = range or 10
@@ -25,7 +25,7 @@ local function getClosestPlayer(character, range)
 	return closest
 end
 
--- Fungsi NoCollide biar karakter gak tabrakan
+-- Hilangkan tabrakan
 local function noCollide(char1, char2)
 	for _, p1 in pairs(char1:GetDescendants()) do
 		if p1:IsA("BasePart") then
@@ -47,10 +47,14 @@ Tool.Activated:Connect(function()
 	if not humRoot then return end
 
 	if carrying then
-		-- Lepaskan
+		-- Lepas carry
 		if weld then
 			weld:Destroy()
 			weld = nil
+		end
+		if carriedPlayer and carriedPlayer.Character and carriedPlayer.Character:FindFirstChild("HumanoidRootPart") then
+			-- Unanchor biar bisa jalan lagi
+			carriedPlayer.Character.HumanoidRootPart.Anchored = false
 		end
 		carriedPlayer = nil
 		carrying = false
@@ -61,18 +65,21 @@ Tool.Activated:Connect(function()
 			carriedPlayer = target
 			local targetRoot = target.Character.HumanoidRootPart
 
-			-- Atur posisi di belakang punggung (piggyback)
-			targetRoot.CFrame = humRoot.CFrame * CFrame.new(0, 1, 1)
+			-- Tempatkan di depan dada
+			targetRoot.CFrame = humRoot.CFrame * CFrame.new(0, 1, -1)
 
-			-- Weld agar nempel ke punggung
+			-- Pasang Weld
 			weld = Instance.new("Weld")
 			weld.Part0 = humRoot
 			weld.Part1 = targetRoot
-			weld.C0 = CFrame.new(0, 1, 1) -- posisi belakang
+			weld.C0 = CFrame.new(0, 1, -1)
 			weld.Parent = humRoot
 
-			-- Nonaktifkan tabrakan
+			-- Hilangkan tabrakan
 			noCollide(char, target.Character)
+
+			-- Anchor RootPart target → dia nggak bisa jalan, tapi anim/emote masih bisa
+			targetRoot.Anchored = true
 
 			carrying = true
 		end
@@ -83,6 +90,9 @@ Tool.Unequipped:Connect(function()
 	if weld then
 		weld:Destroy()
 		weld = nil
+	end
+	if carriedPlayer and carriedPlayer.Character and carriedPlayer.Character:FindFirstChild("HumanoidRootPart") then
+		carriedPlayer.Character.HumanoidRootPart.Anchored = false
 	end
 	carrying = false
 	carriedPlayer = nil
