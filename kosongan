@@ -1,1 +1,12 @@
+local Config = {}
 
+Config.Name = "AK47"
+Config.MagazineSize = 30
+Config.ReloadTime = 2.5
+Config.FireRate = 600 -- rounds per minute
+Config.Damage = 23 -- damage per shot
+Config.HeadMultiplier = 2
+Config.MaxShotDistance = 500
+Config.SpreadDegrees = 1.5
+
+return Config
